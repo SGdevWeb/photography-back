@@ -3,6 +3,8 @@ package org.photography.api.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.Set;
+
 @Data
 @Entity
 @Table(name = "theme")
@@ -19,5 +21,13 @@ public class Theme {
     @ManyToOne
     @JoinColumn(name = "descriptionId")
     private ThemeDescription description;
+
+    @ManyToMany
+    @JoinTable(
+            name = "theme_photoType",
+            joinColumns = @JoinColumn(name = "themeId"),
+            inverseJoinColumns = @JoinColumn(name = "typeId")
+    )
+    private Set<PhotoType> photoTypes;
 
 }
