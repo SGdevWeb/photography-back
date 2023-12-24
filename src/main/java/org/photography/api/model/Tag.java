@@ -25,4 +25,9 @@ public class Tag {
     )
     private Set<PhotoLibrary> photoLibrarySet;
 
+    public Tag() {}
+
+    public Tag(String tagName) {
+        this.tagName = tagName;
+    }
 }
