@@ -14,7 +14,7 @@ public class Tag {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column
+    @Column(name = "tagName")
     private String tagName;
 
     @ManyToMany
