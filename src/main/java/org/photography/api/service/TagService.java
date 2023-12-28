@@ -1,9 +1,10 @@
 package org.photography.api.service;
 
 import org.photography.api.dto.TagDTO;
-import org.photography.api.exception.TagNotFoundException;
+import org.photography.api.exception.EntityNotFoundException;
 import org.photography.api.model.Tag;
 import org.photography.api.repository.TagRepository;
+import org.photography.api.utils.ValidationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +22,7 @@ public class TagService {
     }
 
     public Tag createTag(Tag tag) {
+        validateTagName(tag.getTagName());
         return tagRepository.save(tag);
     }
 
@@ -48,18 +50,7 @@ public class TagService {
     }
 
     private void validateTagName(String tagName) {
-        if (tagName == null || tagName.isEmpty()) {
-            throw new IllegalArgumentException("Tag name cannot be null or empty");
-        }
-
-        if (!tagName.matches("^[a-zA-Z0-9 ]+$")) {
-            throw new IllegalArgumentException("Tag name can only contain letters and numbers");
-        }
-
-        if (tagName.length() > 255) {
-            throw new IllegalArgumentException("Tag name length cannot exceed 255 characters");
-        }
-
+        ValidationUtils.validateName(tagName);
         if (tagRepository.existsByTagName(tagName)) {
             throw new IllegalArgumentException("Tag with the same name already exists");
         }
@@ -67,7 +58,7 @@ public class TagService {
 
     public Tag getTagById(Long id) {
         return tagRepository.findById(id)
-                .orElseThrow(() -> new TagNotFoundException(id));
+                .orElseThrow(() -> new EntityNotFoundException("Tag", id));
     }
 
     public TagDTO getTagDTOById(Long id) {
@@ -87,15 +78,15 @@ public class TagService {
     }
 
     public Tag updateTag(Long id, Tag updatedTag) {
-        if (tagRepository.existsById(id)) {
-            Tag existingTag = getTagById(id);
+        ValidationUtils.validateId(id);
+        ValidationUtils.validateName(updatedTag.getTagName());
 
-            existingTag.setTagName(updatedTag.getTagName());
+        Tag existingTag = tagRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Tag", id));
 
-            return tagRepository.save(existingTag);
-        } else {
-            throw new TagNotFoundException(id);
-        }
+        existingTag.setTagName(updatedTag.getTagName());
+
+        return tagRepository.save(existingTag);
     }
 
     public TagDTO updateTagDTO(Long id, TagDTO updatedTagDTO) {
@@ -108,7 +99,7 @@ public class TagService {
         if (tagRepository.existsById(id)) {
             tagRepository.deleteById(id);
         } else {
-            throw new TagNotFoundException(id);
+            throw new EntityNotFoundException("Tag", id);
         }
 
     }

@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.photography.api.exception.TagNotFoundException;
+import org.photography.api.exception.EntityNotFoundException;
 import org.photography.api.model.Tag;
 import org.photography.api.repository.TagRepository;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -48,7 +48,7 @@ public class TagServiceTest {
         IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class,
                 () -> tagService.createTag(tagToCreate));
 
-        Assertions.assertEquals("Tag name cannot be null or empty", exception.getMessage());
+        Assertions.assertEquals("Name cannot be null or empty", exception.getMessage());
 
         // Verify
         Mockito.verify(tagRepository, Mockito.never()).save(Mockito.any(Tag.class));
@@ -77,7 +77,7 @@ public class TagServiceTest {
         Long nonExistentTagId = 999L;
 
         // Act & Assert
-        TagNotFoundException exception = Assertions.assertThrows(TagNotFoundException.class,
+        EntityNotFoundException exception = Assertions.assertThrows(EntityNotFoundException.class,
                 () -> tagService.getTagById(nonExistentTagId));
 
         Assertions.assertEquals("Tag not found with ID : " + nonExistentTagId, exception.getMessage());
@@ -108,7 +108,7 @@ public class TagServiceTest {
         updatedTag.setTagName("Updated Tag");
 
         // Mock le comportement du repository pour simuler l'existence du tag
-        Mockito.when(tagRepository.existsById(existingTagId)).thenReturn(true);
+        Mockito.when(tagRepository.findById(existingTagId)).thenReturn(Optional.of(new Tag()));
         Mockito.when(tagRepository.save(Mockito.any(Tag.class))).thenAnswer(invocation -> {
             Tag savedTag = invocation.getArgument(0);
             savedTag.setId(existingTagId.intValue());
@@ -123,25 +123,25 @@ public class TagServiceTest {
         Assertions.assertEquals("Updated Tag", resultTag.getTagName());
 
         // Verify
-        Mockito.verify(tagRepository, Mockito.times(1)).existsById(existingTagId);
+        Mockito.verify(tagRepository, Mockito.times(1)).findById(existingTagId);
         Mockito.verify(tagRepository, Mockito.times(1)).save(Mockito.any(Tag.class));
     }
 
     @Test
-    void updateTag_shouldThrowTagNotFoundException_whenTagDoesNotExist() {
+    void updateTag_shouldThrowEntityNotFoundException_whenTagDoesNotExist() {
         // Arrange
         Long nonExistentTagId = 999L;
         Tag updatedTag = new Tag();
         updatedTag.setTagName("Updated Tag");
 
         // Act & Assert
-        TagNotFoundException exception = Assertions.assertThrows(TagNotFoundException.class,
+        EntityNotFoundException exception = Assertions.assertThrows(EntityNotFoundException.class,
                 () -> tagService.updateTag(nonExistentTagId, updatedTag));
 
         Assertions.assertEquals("Tag not found with ID : " + nonExistentTagId, exception.getMessage());
 
         // Verify
-        Mockito.verify(tagRepository, Mockito.times(1)).existsById(nonExistentTagId);
+        Mockito.verify(tagRepository, Mockito.times(1)).findById(nonExistentTagId);
         Mockito.verify(tagRepository, Mockito.never()).save(Mockito.any(Tag.class));
     }
 
@@ -162,7 +162,7 @@ public class TagServiceTest {
     }
 
     @Test
-    void deleteTag_shouldThrowTagNotFoundException_whenTagDoesNotExist() {
+    void deleteTag_shouldThrowEntityNotFoundException_whenTagDoesNotExist() {
         // Arrange
         Long nonExistentTagId = 999L;
 
@@ -170,7 +170,7 @@ public class TagServiceTest {
         Mockito.when(tagRepository.existsById(nonExistentTagId)).thenReturn(false);
 
         // Act & Assert
-        TagNotFoundException exception = Assertions.assertThrows(TagNotFoundException.class,
+        EntityNotFoundException exception = Assertions.assertThrows(EntityNotFoundException.class,
                 () -> tagService.deleteTag(nonExistentTagId));
 
         Assertions.assertEquals("Tag not found with ID : " + nonExistentTagId, exception.getMessage());

@@ -1,9 +1,9 @@
 package org.photography.api.exception;
 
-public class TagNotFoundException extends RuntimeException {
+public class EntityNotFoundException extends RuntimeException {
 
-    public TagNotFoundException(Long tagId) {
-        super("Tag not found with ID : " + tagId);
+    public EntityNotFoundException(String entityName, Long entityId) {
+        super(entityName + " not found with ID : " + entityId);
     }
 
 }
