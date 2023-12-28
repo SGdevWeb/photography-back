@@ -26,7 +26,7 @@ public class LocationService {
     private ModelMapper modelMapper;
 
     public LocationDTO createLocation(LocationDTO locationDTO) {
-        ValidationUtils.validateName(locationDTO.getLocationName());
+        validateLocationName(locationDTO.getLocationName());
 
         Location locationToCreate = modelMapper.map(locationDTO, Location.class);
 
