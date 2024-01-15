@@ -4,12 +4,16 @@ import org.modelmapper.ModelMapper;
 import org.photography.api.dto.LocationDTO;
 import org.photography.api.exception.EntityNotFoundException;
 import org.photography.api.model.Location;
+import org.photography.api.model.PhotoLibrary;
 import org.photography.api.repository.LocationRepository;
 import org.photography.api.utils.ValidationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -52,11 +56,12 @@ public class LocationService {
         return modelMapper.map(location, LocationDTO.class);
     }
 
-    public List<LocationDTO> getAllLocations() {
-        List<Location> locations = locationRepository.findAll();
+    public Set<LocationDTO> getAllLocations() {
+        Set<Location> locations = new HashSet<>(locationRepository.findAll());
+
         return locations.stream()
                 .map(location -> modelMapper.map(location, LocationDTO.class))
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
     }
 
     public LocationDTO updateLocation(Long id, LocationDTO updatedLocationDTO) {
@@ -74,13 +79,28 @@ public class LocationService {
 
     }
 
+    @Transactional
     public void deleteLocation(Long id) {
         ValidationUtils.validateId(id);
 
-        if (locationRepository.existsById(id)) {
-            locationRepository.deleteById(id);
+        Location location = locationRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Location", id));
+
+        Set<PhotoLibrary> photoLibraries = location.getPhotoLibraries();
+        photoLibraries.forEach(photoLibrary -> photoLibrary.setLocation(null));
+
+        locationRepository.deleteById(id);
+    }
+
+    public Location createLocationIfNotExistsOrGet(String locationName) {
+        Location existingLocation = locationRepository.findByLocationName(locationName);
+
+        if (existingLocation != null) {
+            return modelMapper.map(existingLocation, Location.class);
         } else {
-            throw new EntityNotFoundException("Location", id);
+            Location newLocation = new Location();
+            newLocation.setLocationName(locationName);
+            return modelMapper.map(locationRepository.save(newLocation), Location.class);
         }
     }
 

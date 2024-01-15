@@ -46,6 +46,7 @@ public class PrintPriceService {
 
     public List<PrintPriceDTO> getAllPrintPrices() {
         List<PrintPrice> printPrices = printPriceRepository.findAll();
+
         return printPrices.stream()
                 .map(printPrice -> modelMapper.map(printPrice, PrintPriceDTO.class))
                 .collect(Collectors.toList());

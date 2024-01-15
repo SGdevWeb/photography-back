@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class PrintPriceDTO {
 
-    private Long id;
+    private long id;
 
     private String format;
 

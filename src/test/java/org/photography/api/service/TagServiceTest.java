@@ -13,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 
 @SpringBootTest
@@ -94,7 +95,7 @@ public class TagServiceTest {
 
         Mockito.when(tagRepository.findAll()).thenReturn(tagList);
 
-        List<Tag> retrievedTags = tagService.getAllTags();
+        Set<Tag> retrievedTags = tagService.getAllTags();
 
         Assertions.assertNotNull(retrievedTags);
         Assertions.assertEquals(2, retrievedTags.size());

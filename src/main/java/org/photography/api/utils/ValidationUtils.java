@@ -16,7 +16,7 @@ public class ValidationUtils {
     }
 
     private static void validateCharacterTypesName(String name) {
-        if (!name.matches("^[a-zA-Z0-9 ]+$")) {
+        if (!name.matches("^[\\p{L}0-9 ]+$")) {
             throw new IllegalArgumentException("Name can only contain letters and numbers");
         }
     }
@@ -47,9 +47,21 @@ public class ValidationUtils {
     }
 
     private static void validateCharacterTypesText(String text) {
-        if (!text.matches("^[a-zA-Z0-9., ]+$")) {
+        if (!text.matches("[\\p{L}0-9., ]*")) {
             throw new IllegalArgumentException("Text can only contain letters, numbers, periods, and commas");
         }
     }
+
+    // Theme years
+    public static void validateYearRange(int yearFrom, int yearTo) {
+        if (yearFrom > yearTo) {
+            throw new IllegalArgumentException("Invalid year range. 'yearFrom' should be less than 'yearTo'.");
+        }
+
+        if (yearTo - yearFrom != 1) {
+            throw new IllegalArgumentException("Year range should be exactly one year");
+        }
+    }
+
 
 }
