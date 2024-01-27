@@ -2,7 +2,8 @@ package org.photography.api.service;
 
 import org.modelmapper.ModelMapper;
 import org.photography.api.dto.PhotoLibraryDTO.PhotoLibraryWithoutTagDTO;
-import org.photography.api.dto.TagDTO;
+import org.photography.api.dto.TagDTO.TagCreationDTO;
+import org.photography.api.dto.TagDTO.TagDTO;
 import org.photography.api.exception.EntityNotFoundException;
 import org.photography.api.model.PhotoLibrary;
 import org.photography.api.model.Tag;
@@ -32,17 +33,19 @@ public class TagService {
     public Tag createTag(Tag tag) {
         validateTagName(tag.getTagName());
 
-        return tagRepository.save(tag);
+        Tag createdTag = tagRepository.save(tag);
+
+        return createdTag;
     }
 
-    public TagDTO createTag(TagDTO tagDTO) {
+    public TagDTO createTag(TagCreationDTO tagDTO) {
         validateTagName(tagDTO.getTagName());
 
         Tag tagToCreate = convertToEntity(tagDTO);
 
         Tag createdTag = createTag(tagToCreate);
 
-        return convertToDTO(createdTag);
+        return modelMapper.map(createdTag, TagDTO.class);
     }
 
     // Conversion methods
@@ -54,12 +57,28 @@ public class TagService {
         return tag;
     }
 
+    private Tag convertToEntity(TagCreationDTO tagCreationDTO) {
+        Tag tag = new Tag();
+
+        tag.setTagName(tagCreationDTO.getTagName());
+
+        return tag;
+    }
+
     private TagDTO convertToDTO(Tag tag) {
         TagDTO tagDTO = new TagDTO();
 
         tagDTO.setTagName(tag.getTagName());
 
         return tagDTO;
+    }
+
+    private TagCreationDTO convertToCreationDTO(Tag tag) {
+        TagCreationDTO tagCreationDTO = new TagCreationDTO();
+
+        tagCreationDTO.setTagName(tag.getTagName());
+
+        return tagCreationDTO;
     }
 
     private void validateTagName(String tagName) {
@@ -78,7 +97,7 @@ public class TagService {
     public TagDTO getTagDTOById(Long id) {
         Tag tag = getTagById(id);
 
-        return convertToDTO(tag);
+        return modelMapper.map(tag, TagDTO.class);
     }
 
     public Set<Tag> getAllTags() {
@@ -89,7 +108,7 @@ public class TagService {
         Set<Tag> tags = getAllTags();
 
         return tags.stream()
-                .map(tag -> convertToDTO(tag))
+                .map(tag -> modelMapper.map(tag, TagDTO.class))
                 .collect(Collectors.toSet());
     }
 
@@ -104,7 +123,7 @@ public class TagService {
             throw new jakarta.persistence.EntityNotFoundException("Tag not found with name : " + tagName);
         } else {
             Tag tag = tagRepository.findByTagName(tagName);
-            return convertToDTO(tag);
+            return modelMapper.map(tag, TagDTO.class);
         }
     }
 
@@ -123,7 +142,7 @@ public class TagService {
     public TagDTO updateTagDTO(Long id, TagDTO updatedTagDTO) {
         Tag updatedTag = convertToEntity(updatedTagDTO);
 
-        return convertToDTO(updateTag(id, updatedTag));
+        return modelMapper.map(updateTag(id, updatedTag), TagDTO.class);
     }
 
     @Transactional

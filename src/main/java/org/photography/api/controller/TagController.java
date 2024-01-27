@@ -1,7 +1,8 @@
 package org.photography.api.controller;
 
 import org.photography.api.dto.PhotoLibraryDTO.PhotoLibraryWithoutTagDTO;
-import org.photography.api.dto.TagDTO;
+import org.photography.api.dto.TagDTO.TagCreationDTO;
+import org.photography.api.dto.TagDTO.TagDTO;
 import org.photography.api.exception.EntityNotFoundException;
 import org.photography.api.service.TagService;
 import org.photography.api.service.ThemeService;
@@ -28,7 +29,7 @@ public class TagController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createTag(@RequestBody TagDTO tagDTO) {
+    public ResponseEntity<?> createTag(@RequestBody TagCreationDTO tagDTO) {
         try {
             TagDTO createdTag = tagService.createTag(tagDTO);
             return new ResponseEntity<>(createdTag, HttpStatus.CREATED);

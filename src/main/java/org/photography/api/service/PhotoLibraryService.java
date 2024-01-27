@@ -2,7 +2,7 @@ package org.photography.api.service;
 
 import org.modelmapper.ModelMapper;
 import org.photography.api.dto.PhotoLibraryDTO.PhotoLibraryDTO;
-import org.photography.api.dto.TagDTO;
+import org.photography.api.dto.TagDTO.TagDTO;
 import org.photography.api.exception.EntityNotFoundException;
 import org.photography.api.model.Location;
 import org.photography.api.model.PhotoLibrary;

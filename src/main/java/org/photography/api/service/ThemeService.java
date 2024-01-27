@@ -74,6 +74,7 @@ public class ThemeService {
 
         Theme themeToCreate = new Theme();
 
+        themeToCreate.setThemePhotos(new HashSet<>());
         themeToCreate.setYearFrom(themeCreationDTO.getYearFrom());
         themeToCreate.setYearTo(themeCreationDTO.getYearTo());
         themeToCreate.setThemeName(themeCreationDTO.getThemeName());
@@ -121,6 +122,12 @@ public class ThemeService {
                 themePhoto.setTheme(theme);
 
                 ThemePhoto themePhotoCreated = themePhotoRepository.save(themePhoto);
+
+                Set<ThemePhoto> themePhotos = theme.getThemePhotos();
+                themePhotos.add(themePhotoCreated);
+                theme.setThemePhotos(themePhotos);
+
+                themeRepository.save(theme);
 
                 photoType.getThemePhotos().add(themePhotoCreated);
 
