@@ -44,4 +44,15 @@ public class PhotoService {
         return Files.readAllBytes(filePath);
     }
 
+    public void deletePhoto(String contentType, String fileName) {
+        Path filePath = Path.of(uploadPath, contentType, fileName);
+        try {
+            Files.deleteIfExists(filePath);
+            System.out.println("fichier supprimé !");
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Erreur lors de la suppression du fichier sur le serveur");
+        }
+    }
+
 }

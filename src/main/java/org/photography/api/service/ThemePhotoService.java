@@ -1,6 +1,7 @@
 package org.photography.api.service;
 
 import org.modelmapper.ModelMapper;
+import org.photography.api.dto.PhotoDTO;
 import org.photography.api.dto.PhototypeDTO.PhotoTypeCreationDTO;
 import org.photography.api.dto.PhototypeDTO.PhotoTypeDetailDTO;
 import org.photography.api.dto.ThemePhotoDTO.ThemePhotoDTO;
@@ -15,6 +16,7 @@ import org.photography.api.repository.ThemeRepository;
 import org.photography.api.utils.ValidationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashSet;
 import java.util.List;
@@ -27,9 +29,13 @@ public class ThemePhotoService {
 
     private final ThemePhotoRepository themePhotoRepository;
 
+    private final PhotoService photoService;
+
     @Autowired
-    public ThemePhotoService(ThemePhotoRepository themePhotoRepository) {
+    public ThemePhotoService(ThemePhotoRepository themePhotoRepository,
+                             PhotoService photoService) {
         this.themePhotoRepository = themePhotoRepository;
+        this.photoService = photoService;
     }
 
     @Autowired
@@ -52,14 +58,25 @@ public class ThemePhotoService {
                 .collect(Collectors.toSet());
     }
 
-    public ThemePhotoDTO updateThemePhotoUrl(Long themePhotoId, ThemePhotoUpdateDTO themePhotoUpdateDTO) {
+    public ThemePhotoDTO updateThemePhotoUrl(Long themePhotoId, PhotoDTO photoDTO) {
         ThemePhoto themePhoto = themePhotoRepository.findById(themePhotoId)
                 .orElseThrow(() -> new EntityNotFoundException("ThemePhoto", themePhotoId));
 
-        String newUrl = themePhotoUpdateDTO.getPhotoUrl();
+        String oldUrl = themePhoto.getPhotoUrl();
+
+        // Suppression de l'ancienne photo
+        String[] parts = oldUrl.split("/");
+        String fileName = parts[parts.length - 1];
+        String contentType = photoDTO.getContentType();
+        photoService.deletePhoto(contentType, fileName);
+
+        // Upload de la nouvelle photo
+//        PhotoDTO photoDTO = themePhotoUpdateDTO.getPhotoDTO();
+
+        String newPhotoUrl = photoService.uploadPhoto(photoDTO);
 
         // Mise à jour de l'URL
-        themePhoto.setPhotoUrl(newUrl);
+        themePhoto.setPhotoUrl(newPhotoUrl);
         ThemePhoto themePhotoUpdated = themePhotoRepository.save(themePhoto);
         return modelMapper.map(themePhotoUpdated, ThemePhotoDTO.class);
     }

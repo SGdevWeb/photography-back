@@ -37,7 +37,7 @@ public class PhotoController {
     }
 
     @GetMapping("/{contentType}/{fileName}")
-    public ResponseEntity<byte[]> serveImage(@PathVariable String contentType, @PathVariable String fileName) {
+    public ResponseEntity<?> serveImage(@PathVariable String contentType, @PathVariable String fileName) {
         try {
             byte[] mediaContent = photoService.getMediaContent(contentType, fileName);
 
@@ -46,8 +46,15 @@ public class PhotoController {
 
             return new ResponseEntity<>(mediaContent, headers, HttpStatus.OK);
         } catch (IOException e) {
-            throw new RuntimeException("Erreur lors de la récupération du fichier : " + e.getMessage());
+            return new ResponseEntity<>("Erreur lors de la récupération du fichier : " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @DeleteMapping("/{contentType}/{fileName}")
+    public ResponseEntity<String> delePhoto(@PathVariable String contentType, @PathVariable String fileName) {
+        photoService.deletePhoto(contentType, fileName);
+
+        return new ResponseEntity<>("Photo supprimée avec succés", HttpStatus.OK);
     }
 
 }

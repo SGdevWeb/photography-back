@@ -7,6 +7,7 @@ import org.photography.api.dto.PhototypeDTO.PhotoTypeDetailDTO;
 import org.photography.api.dto.ThemeDTO.ThemeCreationDTO;
 import org.photography.api.dto.ThemeDTO.ThemeDTO;
 import org.photography.api.dto.ThemeDTO.ThemeDetailDTO;
+import org.photography.api.dto.ThemeDTO.ThemeUpdateDTO;
 import org.photography.api.dto.ThemeDescriptionDTO.ThemeDescriptionDTO;
 import org.photography.api.dto.ThemePhotoDTO.ThemePhotoCreationDTO;
 import org.photography.api.dto.ThemePhotoDTO.ThemePhotoDTO;
@@ -158,6 +159,27 @@ public class ThemeService {
         return themes.stream()
                 .map(theme -> modelMapper.map(theme, ThemeDetailDTO.class))
                 .collect(Collectors.toSet());
+    }
+
+    public ThemeDetailDTO updateTheme(Long themeId, ThemeUpdateDTO themeUpdateDTO) {
+        Theme existingTheme = themeRepository.findById(themeId)
+                .orElseThrow(() -> new EntityNotFoundException("Theme", themeId));
+
+        if (themeUpdateDTO.getYearFrom() != null) {
+            existingTheme.setYearFrom(themeUpdateDTO.getYearFrom());
+        }
+        if (themeUpdateDTO.getYearTo() != null) {
+            ValidationUtils.validateYearRange(themeUpdateDTO.getYearFrom(), themeUpdateDTO.getYearTo());
+            existingTheme.setYearTo(themeUpdateDTO.getYearTo());
+        }
+        if (themeUpdateDTO.getThemeName() != null) {
+            ValidationUtils.validateYearRange(themeUpdateDTO.getYearFrom(), themeUpdateDTO.getYearTo());
+            existingTheme.setThemeName(themeUpdateDTO.getThemeName());
+        }
+
+        Theme updatedTheme = themeRepository.save(existingTheme);
+
+        return modelMapper.map(updatedTheme, ThemeDetailDTO.class);
     }
 
     public void deleteTheme(Long id) {

@@ -3,9 +3,11 @@ package org.photography.api.controller;
 import org.photography.api.dto.ThemeDTO.ThemeCreationDTO;
 import org.photography.api.dto.ThemeDTO.ThemeDTO;
 import org.photography.api.dto.ThemeDTO.ThemeDetailDTO;
+import org.photography.api.dto.ThemeDTO.ThemeUpdateDTO;
 import org.photography.api.exception.AlreadyExists;
 import org.photography.api.exception.EntityNotFoundException;
 import org.photography.api.exception.NonUniquePhotoUrlException;
+import org.photography.api.model.Theme;
 import org.photography.api.service.ThemeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,6 +71,17 @@ public class ThemeController {
             return new ResponseEntity<>("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @PutMapping("/{themeId}")
+    public ResponseEntity<?> updateTheme(@PathVariable Long themeId, @RequestBody ThemeUpdateDTO themeUpdateDTO){
+        try {
+            ThemeDetailDTO updatedTheme = themeService.updateTheme(themeId, themeUpdateDTO);
+            return new ResponseEntity<>(updatedTheme, HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
+
 
     @DeleteMapping("/{themeId}")
     public ResponseEntity<?> deleteTheme(@PathVariable Long themeId) {

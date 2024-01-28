@@ -1,5 +1,6 @@
 package org.photography.api.controller;
 
+import org.photography.api.dto.PhotoDTO;
 import org.photography.api.dto.ThemePhotoDTO.ThemePhotoDTO;
 import org.photography.api.dto.ThemePhotoDTO.ThemePhotoUpdateDTO;
 import org.photography.api.exception.EntityNotFoundException;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -53,9 +55,13 @@ public class ThemePhotoController {
     }
 
     @PutMapping("/{themePhotoId}")
-    public ResponseEntity<?> updateThemePhoto(@PathVariable Long themePhotoId, @RequestBody ThemePhotoUpdateDTO updatedThemePhotoDTO) {
+    public ResponseEntity<?> updateThemePhoto(@PathVariable Long themePhotoId, @RequestParam("photo") MultipartFile photo,
+                                              @RequestParam("contentType") String contentType) {
         try {
-            ThemePhotoDTO updatedThemePhoto = themePhotoService.updateThemePhotoUrl(themePhotoId, updatedThemePhotoDTO);
+            PhotoDTO photoDTO = new PhotoDTO();
+            photoDTO.setPhoto(photo);
+            photoDTO.setContentType(contentType);
+            ThemePhotoDTO updatedThemePhoto = themePhotoService.updateThemePhotoUrl(themePhotoId, photoDTO);
             return new ResponseEntity<>(updatedThemePhoto, HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);

@@ -34,3 +34,6 @@ build/
 
 ### Spring properties ###
 src/main/resources/application.properties
+
+### Others ###
+src/main/resources
