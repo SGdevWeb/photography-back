@@ -33,11 +33,7 @@ public class Theme implements Serializable {
 
     private String themeName;
 
-    @ManyToOne
-    @JoinColumn(name = "descriptionId")
-//    @JsonBackReference
-//    @JsonIgnore
-    private ThemeDescription description;
+    private String descriptionText;
 
     @ManyToMany(cascade = CascadeType.PERSIST)
     @JoinTable(
@@ -84,12 +80,12 @@ public class Theme implements Serializable {
         this.themeName = themeName;
     }
 
-    public ThemeDescription getDescription() {
-        return description;
+    public String getDescriptionText() {
+        return descriptionText;
     }
 
-    public void setDescription(ThemeDescription description) {
-        this.description = description;
+    public void setDescriptionText(String descriptionText) {
+        this.descriptionText = descriptionText;
     }
 
     public Set<PhotoType> getPhotoTypes() {
@@ -117,12 +113,13 @@ public class Theme implements Serializable {
                 yearFrom == theme.yearFrom &&
                 yearTo == theme.yearTo &&
                 Objects.equals(themeName, theme.themeName) &&
-                Objects.equals(description, theme.description) &&
-                Objects.equals(photoTypes, theme.photoTypes);
+                Objects.equals(descriptionText, theme.descriptionText) &&
+                Objects.equals(photoTypes, theme.photoTypes) &&
+                Objects.equals(themePhotos, theme.themePhotos);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, yearFrom, yearTo, themeName, description, photoTypes);
+        return Objects.hash(id, yearFrom, yearTo, themeName, descriptionText, photoTypes, themePhotos);
     }
 }

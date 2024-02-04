@@ -1,9 +1,11 @@
 package org.photography.api.controller;
 
+import org.photography.api.dto.PhotoDTO;
 import org.photography.api.dto.PhototypeDTO.PhotoTypeCreationDTO;
 import org.photography.api.dto.PhototypeDTO.PhotoTypeDTO;
 import org.photography.api.dto.PhototypeDTO.PhotoTypeDetailDTO;
 import org.photography.api.dto.PhototypeDTO.PhotoTypeUpdateDTO;
+import org.photography.api.dto.ThemeDTO.ThemeDTO;
 import org.photography.api.exception.AlreadyExists;
 import org.photography.api.exception.EntityNotFoundException;
 import org.photography.api.service.PhotoTypeService;
@@ -14,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -29,6 +32,19 @@ public class PhotoTypeController {
     @Autowired
     public PhotoTypeController(PhotoTypeService photoTypeService) {
         this.photoTypeService = photoTypeService;
+    }
+
+    @PostMapping("/{themeId}")
+    public ResponseEntity<?> createPhotoType(@RequestBody PhotoTypeCreationDTO photoTypeCreationDTO, @PathVariable Long themeId){
+        try {
+            PhotoTypeDetailDTO photoType = photoTypeService.createPhotoType(photoTypeCreationDTO, themeId);
+            return new ResponseEntity<>(photoType, HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            logger.info("Erreur lors de la récupération d'un type de photo : ", e);
+            return new ResponseEntity<>("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping("/{photoTypeId}")
@@ -56,7 +72,7 @@ public class PhotoTypeController {
     }
 
     @PutMapping("/{photoTypeId}")
-    public ResponseEntity<?> updatePhotoType(@PathVariable Long photoTypeId, @RequestBody PhotoTypeUpdateDTO updatedPhotoTypeDTO) {
+    public ResponseEntity<?> updatePhotoTypeName(@PathVariable Long photoTypeId, @RequestBody PhotoTypeUpdateDTO updatedPhotoTypeDTO) {
         try {
             PhotoTypeDTO updatedPhotoType = photoTypeService.updatePhotoTypeName(photoTypeId, updatedPhotoTypeDTO);
             return new ResponseEntity<>(updatedPhotoType, HttpStatus.OK);
@@ -69,9 +85,9 @@ public class PhotoTypeController {
     }
 
     @DeleteMapping("/{photoTypeId}")
-    public ResponseEntity<?> deletePhotoType(@PathVariable Long photoTypeId) {
+    public ResponseEntity<?> deletePhotoType(@PathVariable Long photoTypeId, @RequestParam Long themeId) {
         try {
-            photoTypeService.deletePhotoType(photoTypeId);
+            photoTypeService.deletePhotoType(photoTypeId, themeId);
             return new ResponseEntity<>("PhotoType successfully deleted", HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);

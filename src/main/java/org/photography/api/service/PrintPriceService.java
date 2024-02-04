@@ -56,6 +56,8 @@ public class PrintPriceService {
         ValidationUtils.validateId(id);
         ValidationUtils.validateName(updatedPrintPriceDTO.getFormat());
 
+        System.out.println(updatedPrintPriceDTO.getPaperPrice());
+
         PrintPrice existingPrintPrice = printPriceRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("PrintPrice", id));
 

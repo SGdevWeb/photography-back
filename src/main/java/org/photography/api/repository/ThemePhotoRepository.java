@@ -1,8 +1,6 @@
 package org.photography.api.repository;
 
 import org.photography.api.model.PhotoType;
-import org.photography.api.model.Theme;
-import org.photography.api.model.ThemeDescription;
 import org.photography.api.model.ThemePhoto;
 import org.springframework.data.jpa.repository.JpaRepository;
 

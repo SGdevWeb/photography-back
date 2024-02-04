@@ -3,8 +3,6 @@ package org.photography.api.dto.ThemeDTO;
 import lombok.Getter;
 import lombok.Setter;
 import org.photography.api.dto.PhototypeDTO.PhotoTypeCreationDTO;
-import org.photography.api.dto.ThemeDescriptionDTO.ThemeDescriptionDTO;
-import org.photography.api.dto.ThemePhotoDTO.ThemePhotoDTO;
 
 import java.util.Set;
 
@@ -18,7 +16,7 @@ public class ThemeCreationDTO {
 
     private String themeName;
 
-    private ThemeDescriptionDTO description;
+    private String descriptionText;
 
     private Set<PhotoTypeCreationDTO> photoTypes;
 

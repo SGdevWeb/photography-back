@@ -20,7 +20,7 @@ public class PrintPriceController {
 
     private final PrintPriceService printPriceService;
 
-    private static final Logger logger = LoggerFactory.getLogger(ThemeService.class);
+    private static final Logger logger = LoggerFactory.getLogger(PrintPriceService.class);
 
     @Autowired
     public PrintPriceController(PrintPriceService printPriceService) {

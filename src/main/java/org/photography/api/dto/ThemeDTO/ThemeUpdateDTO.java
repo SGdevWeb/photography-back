@@ -13,4 +13,6 @@ public class ThemeUpdateDTO {
     private Integer yearTo;
 
     private String themeName;
+
+    private String descriptionText;
 }

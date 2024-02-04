@@ -3,20 +3,15 @@ package org.photography.api.service;
 import org.modelmapper.ModelMapper;
 import org.photography.api.dto.PhototypeDTO.PhotoTypeCreationDTO;
 import org.photography.api.dto.PhototypeDTO.PhotoTypeDTO;
-import org.photography.api.dto.PhototypeDTO.PhotoTypeDetailDTO;
 import org.photography.api.dto.ThemeDTO.ThemeCreationDTO;
-import org.photography.api.dto.ThemeDTO.ThemeDTO;
 import org.photography.api.dto.ThemeDTO.ThemeDetailDTO;
 import org.photography.api.dto.ThemeDTO.ThemeUpdateDTO;
-import org.photography.api.dto.ThemeDescriptionDTO.ThemeDescriptionDTO;
-import org.photography.api.dto.ThemePhotoDTO.ThemePhotoCreationDTO;
 import org.photography.api.dto.ThemePhotoDTO.ThemePhotoDTO;
 import org.photography.api.exception.AlreadyExists;
 import org.photography.api.exception.EntityNotFoundException;
 import org.photography.api.exception.NonUniquePhotoUrlException;
 import org.photography.api.model.*;
 import org.photography.api.repository.PhotoTypeRepository;
-import org.photography.api.repository.ThemeDescriptionRepository;
 import org.photography.api.repository.ThemePhotoRepository;
 import org.photography.api.repository.ThemeRepository;
 import org.photography.api.utils.ValidationUtils;
@@ -32,10 +27,6 @@ public class ThemeService {
 
     private final ThemeRepository themeRepository;
 
-    private final ThemeDescriptionService themeDescriptionService;
-
-    private final ThemeDescriptionRepository themeDescriptionRepository;
-
     private final PhotoTypeService photoTypeService;
 
     private final PhotoTypeRepository photoTypeRepository;
@@ -46,15 +37,11 @@ public class ThemeService {
 
     @Autowired
     public ThemeService(ThemeRepository themeRepository,
-                        ThemeDescriptionService themeDescriptionService,
-                        ThemeDescriptionRepository themeDescriptionRepository,
                         PhotoTypeService photoTypeService,
                         PhotoTypeRepository photoTypeRepository,
                         ThemePhotoService themePhotoService,
                         ThemePhotoRepository themePhotoRepository) {
         this.themeRepository = themeRepository;
-        this.themeDescriptionService = themeDescriptionService;
-        this.themeDescriptionRepository = themeDescriptionRepository;
         this.photoTypeService = photoTypeService;
         this.photoTypeRepository = photoTypeRepository;
         this.themePhotoService = themePhotoService;
@@ -80,14 +67,7 @@ public class ThemeService {
         themeToCreate.setYearTo(themeCreationDTO.getYearTo());
         themeToCreate.setThemeName(themeCreationDTO.getThemeName());
 
-        // Description
-        if (themeCreationDTO.getDescription() != null) {
-            ThemeDescriptionDTO themeDescriptionDTO = themeCreationDTO.getDescription();
-            ThemeDescriptionDTO themeDescriptionDTOToCreate = themeDescriptionService.createThemeDescriptionIfNotExistsOrGet(themeDescriptionDTO.getDescriptionText());
-            ThemeDescription themeDescriptionToCreate = modelMapper.map(themeDescriptionDTOToCreate, ThemeDescription.class);
-
-            themeToCreate.setDescription(themeDescriptionToCreate);
-        }
+        themeToCreate.setDescriptionText(themeCreationDTO.getDescriptionText());
 
         Theme createdTheme = themeRepository.save(themeToCreate);
 
@@ -173,8 +153,10 @@ public class ThemeService {
             existingTheme.setYearTo(themeUpdateDTO.getYearTo());
         }
         if (themeUpdateDTO.getThemeName() != null) {
-            ValidationUtils.validateYearRange(themeUpdateDTO.getYearFrom(), themeUpdateDTO.getYearTo());
             existingTheme.setThemeName(themeUpdateDTO.getThemeName());
+        }
+        if (themeUpdateDTO.getDescriptionText() != null) {
+            existingTheme.setDescriptionText(themeUpdateDTO.getDescriptionText());
         }
 
         Theme updatedTheme = themeRepository.save(existingTheme);
@@ -187,15 +169,6 @@ public class ThemeService {
 
         Theme themeToDelete = themeRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Theme", id));
-
-        ThemeDescription themeDescription = themeToDelete.getDescription();
-
-        if (themeDescription != null && themeDescription.getThemes().size() == 1) {
-            themeToDelete.setDescription(null);
-            themeDescriptionRepository.deleteById(themeDescription.getId());
-        }
-
-        themeToDelete.setDescription(null);
 
         Set<PhotoType> photoTypesToRemove = themeToDelete.getPhotoTypes().stream()
                 .filter(photoType -> photoType.getThemes().size() == 1)

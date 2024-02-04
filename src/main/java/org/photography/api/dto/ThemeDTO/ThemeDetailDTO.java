@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import org.photography.api.dto.PhototypeDTO.PhotoTypeDetailDTO;
-import org.photography.api.dto.ThemeDescriptionDTO.ThemeDescriptionDTO;
 import org.photography.api.dto.ThemePhotoDTO.ThemePhotoDTO;
 
 import java.util.Set;
@@ -21,8 +20,7 @@ public class ThemeDetailDTO {
 
     private String themeName;
 
-//    @JsonIgnore
-    private ThemeDescriptionDTO description;
+    private String descriptionText;
 
     //    @JsonIgnore
 //    @JsonManagedReference

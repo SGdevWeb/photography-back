@@ -1,15 +1,19 @@
 package org.photography.api.service;
 
 import org.modelmapper.ModelMapper;
+import org.photography.api.dto.PhotoDTO;
 import org.photography.api.dto.PhototypeDTO.PhotoTypeCreationDTO;
 import org.photography.api.dto.PhototypeDTO.PhotoTypeDTO;
 import org.photography.api.dto.PhototypeDTO.PhotoTypeDetailDTO;
 import org.photography.api.dto.PhototypeDTO.PhotoTypeUpdateDTO;
+import org.photography.api.dto.ThemeDTO.ThemeDTO;
 import org.photography.api.exception.AlreadyExists;
 import org.photography.api.exception.EntityNotFoundException;
 import org.photography.api.model.PhotoType;
 import org.photography.api.model.Theme;
+import org.photography.api.model.ThemePhoto;
 import org.photography.api.repository.PhotoTypeRepository;
+import org.photography.api.repository.ThemePhotoRepository;
 import org.photography.api.repository.ThemeRepository;
 import org.photography.api.utils.ValidationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,11 +31,23 @@ public class PhotoTypeService {
 
     private final ThemeRepository themeRepository;
 
+    private final PhotoService photoService;
+
+    private final ThemePhotoService themePhotoService;
+
+    private final ThemePhotoRepository themePhotoRepository;
+
     @Autowired
     public PhotoTypeService(PhotoTypeRepository photoTypeRepository,
-                            ThemeRepository themeRepository) {
+                            ThemeRepository themeRepository,
+                            PhotoService photoService,
+                            ThemePhotoService themePhotoService,
+                            ThemePhotoRepository themePhotoRepository) {
         this.photoTypeRepository = photoTypeRepository;
         this.themeRepository = themeRepository;
+        this.photoService = photoService;
+        this.themePhotoService = themePhotoService;
+        this.themePhotoRepository = themePhotoRepository;
     }
 
     @Autowired
@@ -84,13 +100,39 @@ public class PhotoTypeService {
         }
     }
 
-    public void deletePhotoType(Long id) {
-        ValidationUtils.validateId(id);
+    public void deletePhotoType(Long photoTypeId, Long themeId) {
+        ValidationUtils.validateId(photoTypeId);
+        ValidationUtils.validateId(themeId);
 
-        if (photoTypeRepository.existsById(id)) {
-            photoTypeRepository.deleteById(id);
-        } else {
-            throw new EntityNotFoundException("PhotoType", id);
+        PhotoType photoType = photoTypeRepository.findById(photoTypeId)
+                .orElseThrow(() -> new EntityNotFoundException("PhotoType", photoTypeId));
+
+        Theme theme = themeRepository.findById(themeId)
+                .orElseThrow(() -> new EntityNotFoundException("Theme", themeId));
+
+        if (photoType.getThemePhotos().size() > 1) {
+            Set<ThemePhoto> themePhotos = photoType.getThemePhotos();
+            for (ThemePhoto themePhoto : themePhotos) {
+                if (themePhoto.getTheme().equals(theme)){
+                    theme.getPhotoTypes().remove(photoType);
+                    photoType.getThemes().remove(theme);
+                    themePhoto.setTheme(null);
+                    themePhoto.setPhotoType(null);
+                    String[] parts = themePhoto.getPhotoUrl().split("/");
+                    photoService.deletePhoto("themes", parts[parts.length - 1]);
+                    themePhotoRepository.delete(themePhoto);
+                }
+            }
+        } else if (photoType.getThemePhotos().size() == 1) {
+            ThemePhoto themePhoto = photoType.getThemePhotos().iterator().next();
+            themePhoto.setPhotoType(null);
+            themePhoto.setTheme(null);
+            String[] parts = themePhoto.getPhotoUrl().split("/");
+            photoService.deletePhoto("themes", parts[parts.length - 1]);
+            theme.getThemePhotos().remove(themePhoto);
+            theme.getPhotoTypes().remove(photoType);
+            themePhotoRepository.delete(themePhoto);
+            photoTypeRepository.delete(photoType);
         }
     }
 
@@ -105,5 +147,51 @@ public class PhotoTypeService {
             PhotoType photoTypeCreated = photoTypeRepository.save(newPhotoType);
             return modelMapper.map(photoTypeCreated, PhotoTypeDTO.class);
         }
+    }
+
+    public PhotoTypeDetailDTO createPhotoType(PhotoTypeCreationDTO photoTypeCreationDTO, Long themeId) {
+        String typeName = photoTypeCreationDTO.getTypeName();
+
+        PhotoTypeDTO photoTypeDTO = createPhotoTypeIfNotExistsOrGet(typeName);
+        PhotoType photoType = modelMapper.map(photoTypeDTO, PhotoType.class);
+
+        Theme theme = themeRepository.findById(themeId)
+                .orElseThrow(() -> new EntityNotFoundException("Theme", themeId));
+
+        String photoUrl = photoTypeCreationDTO.getPhotoUrl();
+
+        ThemePhoto themePhoto = new ThemePhoto();
+        themePhoto.setPhotoUrl(photoUrl);
+        themePhoto.setPhotoType(photoType);
+        themePhoto.setTheme(theme);
+
+        ThemePhoto themePhotoCreated = themePhotoRepository.save(themePhoto);
+
+        Set<ThemePhoto> themePhotos = theme.getThemePhotos();
+        themePhotos.add(themePhotoCreated);
+        theme.setThemePhotos(themePhotos);
+
+        if (theme.getPhotoTypes() == null) {
+            theme.setPhotoTypes(new HashSet<>());
+            theme.getPhotoTypes().add(photoType);
+        } else {
+            theme.getPhotoTypes().add(photoType);
+        }
+
+        themeRepository.save(theme);
+
+        photoType.setThemePhotos(new HashSet<>());
+        photoType.getThemePhotos().add(themePhotoCreated);
+
+        if (photoType.getThemes() == null) {
+            photoType.setThemes(new HashSet<>());
+            photoType.getThemes().add(theme);
+        } else {
+            photoType.getThemes().add(theme);
+        }
+
+        PhotoType updatedPhotoType = photoTypeRepository.save(photoType);
+
+        return modelMapper.map(updatedPhotoType, PhotoTypeDetailDTO.class);
     }
 }

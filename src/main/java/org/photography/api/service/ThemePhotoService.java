@@ -70,9 +70,6 @@ public class ThemePhotoService {
         String contentType = photoDTO.getContentType();
         photoService.deletePhoto(contentType, fileName);
 
-        // Upload de la nouvelle photo
-//        PhotoDTO photoDTO = themePhotoUpdateDTO.getPhotoDTO();
-
         String newPhotoUrl = photoService.uploadPhoto(photoDTO);
 
         // Mise à jour de l'URL
