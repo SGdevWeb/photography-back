@@ -15,4 +15,6 @@ public class ThemeUpdateDTO {
     private String themeName;
 
     private String descriptionText;
+
+    private String presentationPhotoUrl;
 }

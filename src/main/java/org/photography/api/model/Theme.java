@@ -35,6 +35,8 @@ public class Theme implements Serializable {
 
     private String descriptionText;
 
+    private String presentationPhotoUrl;
+
     @ManyToMany(cascade = CascadeType.PERSIST)
     @JoinTable(
             name = "theme_photoType",
@@ -86,6 +88,14 @@ public class Theme implements Serializable {
 
     public void setDescriptionText(String descriptionText) {
         this.descriptionText = descriptionText;
+    }
+
+    public String getPresentationPhotoUrl() {
+        return presentationPhotoUrl;
+    }
+
+    public void setPresentationPhotoUrl(String presentationPhotoUrl) {
+        this.presentationPhotoUrl = presentationPhotoUrl;
     }
 
     public Set<PhotoType> getPhotoTypes() {

@@ -18,6 +18,8 @@ public class ThemeCreationDTO {
 
     private String descriptionText;
 
+    private String presentationPhotoUrl;
+
     private Set<PhotoTypeCreationDTO> photoTypes;
 
 }

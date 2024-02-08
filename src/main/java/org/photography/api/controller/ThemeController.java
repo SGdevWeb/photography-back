@@ -1,9 +1,11 @@
 package org.photography.api.controller;
 
+import org.photography.api.dto.PhotoDTO;
 import org.photography.api.dto.ThemeDTO.ThemeCreationDTO;
 import org.photography.api.dto.ThemeDTO.ThemeDTO;
 import org.photography.api.dto.ThemeDTO.ThemeDetailDTO;
 import org.photography.api.dto.ThemeDTO.ThemeUpdateDTO;
+import org.photography.api.dto.ThemePhotoDTO.ThemePhotoDTO;
 import org.photography.api.exception.AlreadyExists;
 import org.photography.api.exception.EntityNotFoundException;
 import org.photography.api.exception.NonUniquePhotoUrlException;
@@ -15,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -82,6 +85,22 @@ public class ThemeController {
         }
     }
 
+    @PutMapping("/{themeId}/presentation-photo")
+    public ResponseEntity<?> updatePresentationPhoto(@PathVariable Long themeId, @RequestParam("photo") MultipartFile photo,
+                                              @RequestParam("contentType") String contentType) {
+        try {
+            PhotoDTO photoDTO = new PhotoDTO();
+            photoDTO.setPhoto(photo);
+            photoDTO.setContentType(contentType);
+            ThemeDetailDTO updatedTheme = themeService.updatePresentationPhoto(themeId, photoDTO);
+            return new ResponseEntity<>(updatedTheme, HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            logger.error("Erreur lors de la récupération de la photo du thème : ", e);
+            return new ResponseEntity<>("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     @DeleteMapping("/{themeId}")
     public ResponseEntity<?> deleteTheme(@PathVariable Long themeId) {

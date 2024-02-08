@@ -1,6 +1,7 @@
 package org.photography.api.service;
 
 import org.modelmapper.ModelMapper;
+import org.photography.api.dto.PhotoDTO;
 import org.photography.api.dto.PhototypeDTO.PhotoTypeCreationDTO;
 import org.photography.api.dto.PhototypeDTO.PhotoTypeDTO;
 import org.photography.api.dto.ThemeDTO.ThemeCreationDTO;
@@ -35,17 +36,21 @@ public class ThemeService {
 
     private final ThemePhotoRepository themePhotoRepository;
 
+    private final PhotoService photoService;
+
     @Autowired
     public ThemeService(ThemeRepository themeRepository,
                         PhotoTypeService photoTypeService,
                         PhotoTypeRepository photoTypeRepository,
                         ThemePhotoService themePhotoService,
-                        ThemePhotoRepository themePhotoRepository) {
+                        ThemePhotoRepository themePhotoRepository,
+                        PhotoService photoService) {
         this.themeRepository = themeRepository;
         this.photoTypeService = photoTypeService;
         this.photoTypeRepository = photoTypeRepository;
         this.themePhotoService = themePhotoService;
         this.themePhotoRepository = themePhotoRepository;
+        this.photoService = photoService;
     }
 
     @Autowired
@@ -66,8 +71,8 @@ public class ThemeService {
         themeToCreate.setYearFrom(themeCreationDTO.getYearFrom());
         themeToCreate.setYearTo(themeCreationDTO.getYearTo());
         themeToCreate.setThemeName(themeCreationDTO.getThemeName());
-
         themeToCreate.setDescriptionText(themeCreationDTO.getDescriptionText());
+        themeToCreate.setPresentationPhotoUrl(themeCreationDTO.getPresentationPhotoUrl());
 
         Theme createdTheme = themeRepository.save(themeToCreate);
 
@@ -162,6 +167,26 @@ public class ThemeService {
         Theme updatedTheme = themeRepository.save(existingTheme);
 
         return modelMapper.map(updatedTheme, ThemeDetailDTO.class);
+    }
+
+    public ThemeDetailDTO updatePresentationPhoto(Long themeId, PhotoDTO photoDTO) {
+        Theme existingTheme = themeRepository.findById(themeId)
+                .orElseThrow(() -> new EntityNotFoundException("Theme", themeId));
+
+        String oldUrl = existingTheme.getPresentationPhotoUrl();
+
+        // Suppression de l'ancienne photo
+        String[] parts = oldUrl.split("/");
+        String fileName = parts[parts.length - 1];
+        String contentType = photoDTO.getContentType();
+        photoService.deletePhoto(contentType, fileName);
+
+        String newPresentationPhotoUrl = photoService.uploadPhoto(photoDTO);
+
+        // Mise à jour de l'URL
+        existingTheme.setPresentationPhotoUrl(newPresentationPhotoUrl);
+        Theme themeUpdated = themeRepository.save(existingTheme);
+        return modelMapper.map(themeUpdated, ThemeDetailDTO.class);
     }
 
     public void deleteTheme(Long id) {

@@ -22,6 +22,8 @@ public class ThemeDetailDTO {
 
     private String descriptionText;
 
+    private String presentationPhotoUrl;
+
     //    @JsonIgnore
 //    @JsonManagedReference
 //    @JsonBackReference
