@@ -21,7 +21,7 @@ public class TagController {
 
     private final TagService tagService;
 
-    private static final Logger logger = LoggerFactory.getLogger(ThemeService.class);
+    private static final Logger logger = LoggerFactory.getLogger(TagController.class);
 
     @Autowired
     public TagController(TagService tagService) {
