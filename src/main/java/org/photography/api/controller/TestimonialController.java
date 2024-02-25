@@ -89,4 +89,26 @@ public class TestimonialController {
         }
     }
 
+    @PostMapping("/{testimonialId}/approve")
+    public ResponseEntity<?> approveTestimonial(@PathVariable long testimonialId) {
+        try {
+            testimonialService.approveTestimonial(testimonialId);
+            return new ResponseEntity<>("Testimonial approved", HttpStatus.OK);
+        } catch (Exception e) {
+            logger.info("Erreur lors de la validation d'un commentaire : ", e);
+            return new ResponseEntity<>("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/{testimonialId}/reject")
+    public ResponseEntity<?> rejectTestimonial(@PathVariable long testimonialId) {
+        try {
+            testimonialService.rejectTestimonial(testimonialId);
+            return new ResponseEntity<>("Testimonial rejected", HttpStatus.OK);
+        } catch (Exception e) {
+            logger.info("Erreur lors de la non-validation d'un commentaire : ", e);
+            return new ResponseEntity<>("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }

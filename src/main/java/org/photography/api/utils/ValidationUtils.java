@@ -47,7 +47,7 @@ public class ValidationUtils {
     }
 
     private static void validateCharacterTypesText(String text) {
-        if (!text.matches("[\\p{L}0-9.,<>:/ ]*")) {
+        if (!text.matches("[\\p{L}0-9.,<>:/!' ]*")) {
             throw new IllegalArgumentException("Text can only contain letters, numbers, periods, and commas");
         }
     }

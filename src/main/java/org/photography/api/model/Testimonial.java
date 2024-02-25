@@ -21,9 +21,15 @@ public class Testimonial {
     private String firstName;
 
     @Column
-    private String testimonialText;
+    private String email;
 
     @Column
+    private String testimonialText;
+
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
     private Boolean isValid;
+
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private Boolean isProcessed;
 
 }
