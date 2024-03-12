@@ -1,6 +1,7 @@
 package org.photography.api.service;
 
 import org.modelmapper.ModelMapper;
+import org.photography.api.dto.PhotoLibraryDTO.PhotoLibraryCreationDTO;
 import org.photography.api.dto.PhotoLibraryDTO.PhotoLibraryDTO;
 import org.photography.api.dto.TagDTO.TagDTO;
 import org.photography.api.exception.EntityNotFoundException;
@@ -42,8 +43,8 @@ public class PhotoLibraryService {
     @Autowired
     private ModelMapper modelMapper;
 
-    public PhotoLibraryDTO createPhotoLibrary(PhotoLibraryDTO photoLibraryDTO) {
-        String locationName = photoLibraryDTO.getLocation().getLocationName();
+    public PhotoLibraryDTO createPhotoLibrary(PhotoLibraryCreationDTO photoLibraryDTO) {
+        String locationName = photoLibraryDTO.getLocation();
         Location location = locationService.createLocationIfNotExistsOrGet(locationName);
 
         if (photoLibraryDTO.getTags() == null || photoLibraryDTO.getTags().isEmpty()) {
@@ -51,7 +52,7 @@ public class PhotoLibraryService {
         }
 
         Set<Tag> tags = photoLibraryDTO.getTags().stream()
-                .map(tagDTO -> tagService.createTagIfNotExistsOrGet(tagDTO.getTagName()))
+                .map(tagCreationDTO -> tagService.createTagIfNotExistsOrGet(tagCreationDTO.getTagName()))
                 .collect(Collectors.toSet());
 
         PhotoLibrary photoLibraryToCreate = modelMapper.map(photoLibraryDTO, PhotoLibrary.class);
@@ -89,7 +90,7 @@ public class PhotoLibraryService {
         PhotoLibrary existingPhotoLibrary = photoLibraryRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("PhotoLibrary", id));
 
-        Location location = locationService.createLocationIfNotExistsOrGet(updatedPhotoLibraryDTO.getLocation().getLocationName());
+        Location location = locationService.createLocationIfNotExistsOrGet(updatedPhotoLibraryDTO.getLocation());
 
         Set<TagDTO> tagDTOs = tagService.getTagsByNameList(updatedPhotoLibraryDTO.getTags().stream()
                 .map(TagDTO::getTagName)

@@ -1,5 +1,6 @@
 package org.photography.api.controller;
 
+import org.photography.api.dto.PhotoLibraryDTO.PhotoLibraryCreationDTO;
 import org.photography.api.dto.PhotoLibraryDTO.PhotoLibraryDTO;
 import org.photography.api.exception.EntityNotFoundException;
 import org.photography.api.service.PhotoLibraryService;
@@ -27,7 +28,7 @@ public class PhotoLibraryController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createPhotoLibrary(@RequestBody PhotoLibraryDTO photoLibraryDTO) {
+    public ResponseEntity<?> createPhotoLibrary(@RequestBody PhotoLibraryCreationDTO photoLibraryDTO) {
         try {
             PhotoLibraryDTO createdPhotoLibrary = photoLibraryService.createPhotoLibrary(photoLibraryDTO);
             return new ResponseEntity<>(createdPhotoLibrary, HttpStatus.CREATED);

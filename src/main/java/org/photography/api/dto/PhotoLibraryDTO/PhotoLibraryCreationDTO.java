@@ -2,13 +2,13 @@ package org.photography.api.dto.PhotoLibraryDTO;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.photography.api.dto.TagDTO.TagDTO;
+import org.photography.api.dto.TagDTO.TagCreationDTO;
 
 import java.util.Set;
 
 @Getter
 @Setter
-public class PhotoLibraryDTO {
+public class PhotoLibraryCreationDTO {
 
     private long id;
 
@@ -16,5 +16,6 @@ public class PhotoLibraryDTO {
 
     private String location;
 
-    private Set<TagDTO> tags;
+    private Set<TagCreationDTO> tags;
+
 }
