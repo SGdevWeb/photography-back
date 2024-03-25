@@ -82,8 +82,8 @@ public class TagController {
     @DeleteMapping("/{tagId}")
     public ResponseEntity<?> deleteTag(@PathVariable Long tagId) {
         try {
-            Set<PhotoLibraryWithoutTagDTO> photoLibrariesWithoutTag = tagService.deleteTag(tagId);
-            return new ResponseEntity<>(photoLibrariesWithoutTag, HttpStatus.OK);
+            tagService.deleteTag(tagId);
+            return new ResponseEntity<>("Tag successfully deleted", HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             logger.info("Erreur lors de la suppression d'un tag : ", e);
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);

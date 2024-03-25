@@ -8,13 +8,19 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.io.Serial;
+import java.io.Serializable;
+import java.util.Objects;
 import java.util.Set;
 
-@Getter
-@Setter
+//@Getter
+//@Setter
 @Entity
 @Table(name = "photoLibrary")
-public class PhotoLibrary {
+public class PhotoLibrary implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,11 +29,15 @@ public class PhotoLibrary {
     @Column
     private String photoUrl;
 
-    @ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    @Column
+    private String photoName;
+
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "locationId")
     private Location location;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @JsonManagedReference
+    @ManyToMany(cascade = CascadeType.PERSIST)
     @JoinTable(
             name = "photoLibrary_tag",
             joinColumns = @JoinColumn(name = "photoId"),
@@ -35,4 +45,56 @@ public class PhotoLibrary {
     )
     private Set<Tag> tags;
 
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public String getPhotoUrl() {
+        return photoUrl;
+    }
+
+    public void setPhotoUrl(String photoUrl) {
+        this.photoUrl = photoUrl;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    public Set<Tag> getTags() {
+        return tags;
+    }
+
+    public void setTags(Set<Tag> tags) {
+        this.tags = tags;
+    }
+
+    public String getPhotoName() {
+        return photoName;
+    }
+
+    public void setPhotoName(String photoName) {
+        this.photoName = photoName;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PhotoLibrary that = (PhotoLibrary) o;
+        return id == that.id && Objects.equals(photoUrl, that.photoUrl) && Objects.equals(photoName, that.photoName) && Objects.equals(location, that.location) && Objects.equals(tags, that.tags);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, photoUrl, photoName, location, tags);
+    }
 }

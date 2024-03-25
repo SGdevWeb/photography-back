@@ -31,6 +31,8 @@ public class PhotoController {
             return new ResponseEntity<>(imageUrl, HttpStatus.OK);
         } catch (FileCopyException e) {
             return new ResponseEntity<>("Erreur lors de la copie du fichier sur le serveur", HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (Exception e) {
             return new ResponseEntity<>("Erreur lors de l'enregistrement du fichier", HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -51,7 +53,7 @@ public class PhotoController {
     }
 
     @DeleteMapping("/{contentType}/{fileName}")
-    public ResponseEntity<String> delePhoto(@PathVariable String contentType, @PathVariable String fileName) {
+    public ResponseEntity<String> deletePhoto(@PathVariable String contentType, @PathVariable String fileName) {
         photoService.deletePhoto(contentType, fileName);
 
         return new ResponseEntity<>("Photo supprimée avec succés", HttpStatus.OK);

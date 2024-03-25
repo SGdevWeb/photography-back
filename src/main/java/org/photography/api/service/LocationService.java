@@ -87,7 +87,9 @@ public class LocationService {
                 .orElseThrow(() -> new EntityNotFoundException("Location", id));
 
         Set<PhotoLibrary> photoLibraries = location.getPhotoLibraries();
-        photoLibraries.forEach(photoLibrary -> photoLibrary.setLocation(null));
+        if (!photoLibraries.isEmpty()) {
+            throw new IllegalStateException("La localisation est utilisée par d'autres photos et ne peut pas être supprimée.");
+        }
 
         locationRepository.deleteById(id);
     }

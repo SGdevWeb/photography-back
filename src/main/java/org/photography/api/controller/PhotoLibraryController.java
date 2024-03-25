@@ -1,17 +1,23 @@
 package org.photography.api.controller;
 
+import org.photography.api.dto.PhotoDTO;
 import org.photography.api.dto.PhotoLibraryDTO.PhotoLibraryCreationDTO;
 import org.photography.api.dto.PhotoLibraryDTO.PhotoLibraryDTO;
+import org.photography.api.dto.TagDTO.TagCreationDTO;
 import org.photography.api.exception.EntityNotFoundException;
+import org.photography.api.model.PhotoLibrary;
 import org.photography.api.service.PhotoLibraryService;
 import org.photography.api.service.TestimonialService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -20,7 +26,7 @@ public class PhotoLibraryController {
 
     private final PhotoLibraryService photoLibraryService;
 
-    private static final Logger logger = LoggerFactory.getLogger(TestimonialService.class);
+    private static final Logger logger = LoggerFactory.getLogger(PhotoLibraryController.class);
 
     @Autowired
     public PhotoLibraryController(PhotoLibraryService photoLibraryService) {
@@ -54,9 +60,12 @@ public class PhotoLibraryController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getAllPhotoLibraries() {
+    public ResponseEntity<?> getAllPhotoLibraries(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
         try {
-            Set<PhotoLibraryDTO> photoLibraries = photoLibraryService.getAllPhotoLibraries();
+            List<PhotoLibraryDTO> photoLibraries = photoLibraryService.getAllPhotoLibraries(page, size).getContent();
             return new ResponseEntity<>(photoLibraries, HttpStatus.OK);
         } catch (Exception e) {
             logger.info("Erreur lors de la récupération des photos : ", e);
@@ -92,5 +101,58 @@ public class PhotoLibraryController {
             return new ResponseEntity<>("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @DeleteMapping("/{photoLibraryId}/location")
+    public ResponseEntity<?> deleteLocation(@PathVariable Long photoLibraryId) {
+        try {
+            photoLibraryService.deleteLocation(photoLibraryId);
+            return new ResponseEntity<>("Lieu supprimée avec succés", HttpStatus.OK);
+        } catch (Exception e) {
+            logger.info("Erreur lors de la suppression du lieu de la photo : ", e);
+            return new ResponseEntity<>("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @DeleteMapping("/{photoLibraryId}/tags/{tagId}")
+    public ResponseEntity<?> removeTag(@PathVariable Long photoLibraryId, @PathVariable Long tagId) {
+        try {
+            photoLibraryService.removeTag(photoLibraryId, tagId);
+            return new ResponseEntity<>("Catégorie supprimée avec succès", HttpStatus.OK);
+        } catch (Exception e) {
+            logger.info("Erreur lors de la suppression de la catégorie de la photo : ", e);
+            return new ResponseEntity<>("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PutMapping("/{photoLibraryId}/addTag")
+    public ResponseEntity<?> addTagToPhotoLibrary(@PathVariable Long photoLibraryId, @RequestBody TagCreationDTO tagCreationDTO) {
+        try {
+            PhotoLibrary updatedPhotoLibrary = photoLibraryService.addTagToPhotoLibrary(photoLibraryId, tagCreationDTO);
+            return new ResponseEntity<>(updatedPhotoLibrary, HttpStatus.OK);
+        } catch (Exception e) {
+            logger.info("Erreur lors de l'ajout du tag à la photo : ", e);
+            return new ResponseEntity<>("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/{photoLibraryId}/updatePhoto")
+    public ResponseEntity<?> updatePhotoInPhotoLibrary(
+            @PathVariable Long photoLibraryId,
+            @RequestParam("photo") MultipartFile photo,
+            @RequestParam("contentType") String contentType
+    ) {
+        try {
+            System.out.println("entrée photoLibraryController");
+            PhotoDTO photoDTO = new PhotoDTO();
+            photoDTO.setPhoto(photo);
+            photoDTO.setContentType(contentType);
+            PhotoLibrary updatedPhotoLibrary = photoLibraryService.updatePhotoInPhotoLibrary(photoLibraryId, photoDTO);
+            return new ResponseEntity<>(updatedPhotoLibrary, HttpStatus.OK);
+        } catch (Exception e) {
+            logger.info("Erreur lors de l'ajout du tag à la photo : ", e);
+            return new ResponseEntity<>("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }
 

@@ -2,7 +2,10 @@ package org.photography.api.dto.PhotoLibraryDTO;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.photography.api.dto.LocationDTO;
+import org.photography.api.dto.TagDTO.TagCreationDTO;
 import org.photography.api.dto.TagDTO.TagDTO;
+import org.photography.api.dto.TagDTO.TagDetailDTO;
 
 import java.util.Set;
 
@@ -14,7 +17,9 @@ public class PhotoLibraryDTO {
 
     private String photoUrl;
 
-    private String location;
+    private String photoName;
+
+    private LocationDTO location;
 
     private Set<TagDTO> tags;
 }

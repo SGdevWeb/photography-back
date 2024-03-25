@@ -17,6 +17,7 @@ import org.photography.api.repository.ThemePhotoRepository;
 import org.photography.api.repository.ThemeRepository;
 import org.photography.api.utils.ValidationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

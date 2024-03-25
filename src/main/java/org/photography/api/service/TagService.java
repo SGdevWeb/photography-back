@@ -146,26 +146,16 @@ public class TagService {
     }
 
     @Transactional
-    public Set<PhotoLibraryWithoutTagDTO> deleteTag(Long id) {
-        Tag tag = tagRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException("Tag", id)
-        );
+    public void deleteTag(Long id) {
+        ValidationUtils.validateId(id);
+
+        Tag tag = tagRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Tag", id));
 
         Set<PhotoLibrary> photoLibraries = tag.getPhotoLibraries();
-
         photoLibraries.forEach(photoLibrary -> photoLibrary.getTags().remove(tag));
 
         tagRepository.deleteById(id);
-
-        Set<PhotoLibrary> photoLibrariesWithoutTags = photoLibraries.stream()
-                .filter(photoLibrary -> photoLibrary.getTags().isEmpty())
-                .collect(Collectors.toSet());
-
-        Set<PhotoLibraryWithoutTagDTO> photoLibraryWithoutTagDTOs = photoLibrariesWithoutTags.stream()
-                .map(photoLibrary -> modelMapper.map(photoLibrary, PhotoLibraryWithoutTagDTO.class))
-                .collect(Collectors.toSet());
-
-        return photoLibraryWithoutTagDTOs;
     }
 
     public Tag createTagIfNotExistsOrGet(String tagName) {

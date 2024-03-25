@@ -37,6 +37,9 @@ public class ThemePhoto implements Serializable {
     @Column(nullable = false)
     private String photoUrl;
 
+    @Column(nullable = false)
+    private int photoPosition;
+
     @Column
     private LocalDate createdAt;
 

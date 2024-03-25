@@ -11,4 +11,6 @@ public class ThemePhotoCreationDTO {
 
     private String photoUrl;
 
+    private int photoPosition;
+
 }

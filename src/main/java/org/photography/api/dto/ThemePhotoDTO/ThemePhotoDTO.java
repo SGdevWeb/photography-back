@@ -19,4 +19,6 @@ public class ThemePhotoDTO {
     private String typeName;
 
     private String photoUrl;
+
+    private int photoPosition;
 }
