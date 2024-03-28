@@ -96,6 +96,8 @@ public class ThemeController {
             return new ResponseEntity<>(updatedTheme, HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (RuntimeException e) {
+                return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
         } catch (Exception e) {
             logger.error("Erreur lors de la récupération de la photo du thème : ", e);
             return new ResponseEntity<>("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);

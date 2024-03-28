@@ -89,6 +89,14 @@ public class ThemePhoto implements Serializable {
         this.createdAt = createdAt;
     }
 
+    public int getPhotoPosition() {
+        return photoPosition;
+    }
+
+    public void setPhotoPosition(int photoPosition) {
+        this.photoPosition = photoPosition;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

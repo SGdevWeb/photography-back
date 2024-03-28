@@ -107,6 +107,7 @@ public class ThemeService {
                 themePhoto.setPhotoUrl(photoTypeDTO.getPhotoUrl());
                 themePhoto.setPhotoType(photoType);
                 themePhoto.setTheme(theme);
+                themePhoto.setPhotoPosition(photoTypeDTO.getPhotoPosition());
 
                 ThemePhoto themePhotoCreated = themePhotoRepository.save(themePhoto);
 
@@ -176,13 +177,13 @@ public class ThemeService {
 
         String oldUrl = existingTheme.getPresentationPhotoUrl();
 
+        String newPresentationPhotoUrl = photoService.uploadPhoto(photoDTO);
+
         // Suppression de l'ancienne photo
         String[] parts = oldUrl.split("/");
         String fileName = parts[parts.length - 1];
         String contentType = photoDTO.getContentType();
         photoService.deletePhoto(contentType, fileName);
-
-        String newPresentationPhotoUrl = photoService.uploadPhoto(photoDTO);
 
         // Mise à jour de l'URL
         existingTheme.setPresentationPhotoUrl(newPresentationPhotoUrl);
@@ -201,9 +202,20 @@ public class ThemeService {
                 .collect(Collectors.toSet());
 
         if (!photoTypesToRemove.isEmpty()) {
+            for (PhotoType photoType : photoTypesToRemove) {
+                for (ThemePhoto themePhoto : photoType.getThemePhotos()) {
+                    String[] parts = themePhoto.getPhotoUrl().split("/");
+                    String fileName = parts[parts.length -1 ];
+                    photoService.deletePhoto("themes", fileName);
+                }
+            }
             themeToDelete.getPhotoTypes().removeAll(photoTypesToRemove);
             photoTypesToRemove.forEach(photoTypeRepository::delete);
         }
+
+        String[] strings = themeToDelete.getPresentationPhotoUrl().split("/");
+        String presentationFileName = strings[strings.length - 1];
+        photoService.deletePhoto("themes", presentationFileName);
 
         themeToDelete.getThemePhotos().forEach(themePhotoRepository::delete);
 

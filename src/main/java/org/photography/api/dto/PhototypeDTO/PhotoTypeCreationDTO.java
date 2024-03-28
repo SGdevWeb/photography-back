@@ -12,4 +12,6 @@ public class PhotoTypeCreationDTO {
 
     private String photoUrl;
 
+    private int photoPosition;
+
 }
