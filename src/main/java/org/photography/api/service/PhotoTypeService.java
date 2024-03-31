@@ -164,6 +164,7 @@ public class PhotoTypeService {
         themePhoto.setPhotoUrl(photoUrl);
         themePhoto.setPhotoType(photoType);
         themePhoto.setTheme(theme);
+        themePhoto.setPhotoPosition(photoTypeCreationDTO.getPhotoPosition());
 
         ThemePhoto themePhotoCreated = themePhotoRepository.save(themePhoto);
 
