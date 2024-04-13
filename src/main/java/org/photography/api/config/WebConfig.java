@@ -16,10 +16,6 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedOrigins("http://localhost:5173")
                 .allowedMethods("GET", "POST", "PUT", "DELETE")
                 .allowedHeaders("*");
-        registry.addMapping("api/photo-libraries/{photoLibraryId}/location")
-                .allowedOrigins("*")
-                .allowedMethods("DELETE")
-                .allowedHeaders("*");
     }
 
 }
