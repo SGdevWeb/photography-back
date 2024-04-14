@@ -1,7 +1,11 @@
 package org.photography.api.controller;
 
 import org.photography.api.dto.LoginDTO;
+import org.photography.api.model.User;
+import org.photography.api.repository.UserRepository;
 import org.photography.api.service.JWTService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,14 +21,24 @@ public class LoginController {
 
     private JWTService jwtService;
 
-    public LoginController(JWTService jwtService, AuthenticationManager authenticationManager) {
+    private UserRepository userRepository;
+
+    public LoginController(JWTService jwtService,
+                           AuthenticationManager authenticationManager,
+                           UserRepository userRepository) {
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
+        this.userRepository = userRepository;
     }
 
     @PostMapping("/login")
-    public String getToken(@RequestBody LoginDTO loginDTO) {
+    public ResponseEntity<String> getToken(@RequestBody LoginDTO loginDTO) {
         try {
+            User user = userRepository.findByUsername(loginDTO.getUsername());
+            if (user == null) {
+                return new ResponseEntity<>("Nom d'utilisateur ou mot de passe incorrect.", HttpStatus.UNAUTHORIZED);
+            }
+
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             loginDTO.getUsername(),
@@ -33,11 +47,12 @@ public class LoginController {
             );
 
             String token = jwtService.generateToken(authentication);
-            return token;
+
+            return new ResponseEntity<>(token, HttpStatus.OK);
         } catch (BadCredentialsException e) {
-            return "Invalid username or password.";
+            return new ResponseEntity<>("Nom d'utilisateur ou mot de passe incorrect.", HttpStatus.UNAUTHORIZED);
         } catch (AuthenticationException e) {
-            return "Authentication failed: " + e.getMessage();
+            return new ResponseEntity<>("Echec de l'authentification : " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR) ;
         }
     }
 
