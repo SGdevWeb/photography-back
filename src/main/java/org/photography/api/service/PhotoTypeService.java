@@ -1,13 +1,10 @@
 package org.photography.api.service;
 
 import org.modelmapper.ModelMapper;
-import org.photography.api.dto.PhotoDTO;
 import org.photography.api.dto.PhototypeDTO.PhotoTypeCreationDTO;
 import org.photography.api.dto.PhototypeDTO.PhotoTypeDTO;
 import org.photography.api.dto.PhototypeDTO.PhotoTypeDetailDTO;
 import org.photography.api.dto.PhototypeDTO.PhotoTypeUpdateDTO;
-import org.photography.api.dto.ThemeDTO.ThemeDTO;
-import org.photography.api.exception.AlreadyExists;
 import org.photography.api.exception.EntityNotFoundException;
 import org.photography.api.model.PhotoType;
 import org.photography.api.model.Theme;
@@ -75,6 +72,7 @@ public class PhotoTypeService {
                 .orElseThrow(() -> new EntityNotFoundException("PhotoType", photoTypeId));
 
         String newTypeName = photoTypeUpdateDTO.getTypeName();
+        ValidationUtils.validateText(newTypeName);
 
         // Mise à jour du typeName
         photoType.setTypeName(newTypeName);
@@ -136,24 +134,23 @@ public class PhotoTypeService {
         }
     }
 
-    public PhotoTypeDTO createPhotoTypeIfNotExistsOrGet(String typeName) {
+    public PhotoType createPhotoTypeIfNotExistsOrGet(String typeName) {
         Optional<PhotoType> existingPhotoType = photoTypeRepository.findByTypeName(typeName);
 
         if (existingPhotoType.isPresent()) {
-            return modelMapper.map(existingPhotoType.get(), PhotoTypeDTO.class);
+            return existingPhotoType.get();
         } else {
             PhotoType newPhotoType = new PhotoType();
             newPhotoType.setTypeName(typeName);
             PhotoType photoTypeCreated = photoTypeRepository.save(newPhotoType);
-            return modelMapper.map(photoTypeCreated, PhotoTypeDTO.class);
+            return photoTypeCreated;
         }
     }
 
     public PhotoTypeDetailDTO createPhotoType(PhotoTypeCreationDTO photoTypeCreationDTO, Long themeId) {
         String typeName = photoTypeCreationDTO.getTypeName();
 
-        PhotoTypeDTO photoTypeDTO = createPhotoTypeIfNotExistsOrGet(typeName);
-        PhotoType photoType = modelMapper.map(photoTypeDTO, PhotoType.class);
+        PhotoType photoType = createPhotoTypeIfNotExistsOrGet(typeName);
 
         Theme theme = themeRepository.findById(themeId)
                 .orElseThrow(() -> new EntityNotFoundException("Theme", themeId));
@@ -179,16 +176,20 @@ public class PhotoTypeService {
             theme.getPhotoTypes().add(photoType);
         }
 
-        themeRepository.save(theme);
+        Theme themeUpdated = themeRepository.save(theme);
 
-        photoType.setThemePhotos(new HashSet<>());
-        photoType.getThemePhotos().add(themePhotoCreated);
+        if (photoType.getThemePhotos() == null) {
+            photoType.setThemePhotos(new HashSet<>());
+            photoType.getThemePhotos().add(themePhotoCreated);
+        } else {
+            photoType.getThemePhotos().add(themePhotoCreated);
+        }
 
         if (photoType.getThemes() == null) {
             photoType.setThemes(new HashSet<>());
-            photoType.getThemes().add(theme);
+            photoType.getThemes().add(themeUpdated);
         } else {
-            photoType.getThemes().add(theme);
+            photoType.getThemes().add(themeUpdated);
         }
 
         PhotoType updatedPhotoType = photoTypeRepository.save(photoType);

@@ -92,8 +92,7 @@ public class ThemeService {
 
         if (photoTypeDTOs != null) {
             for (PhotoTypeCreationDTO photoTypeDTO : photoTypeDTOs) {
-                PhotoTypeDTO photoTypeDTOToCreate = photoTypeService.createPhotoTypeIfNotExistsOrGet(photoTypeDTO.getTypeName());
-                PhotoType photoType = modelMapper.map(photoTypeDTOToCreate, PhotoType.class);
+                PhotoType photoType = photoTypeService.createPhotoTypeIfNotExistsOrGet(photoTypeDTO.getTypeName());
                 photoType.setThemePhotos(new HashSet<>());
 
                 Set<ThemePhotoDTO> themePhotoDTOS = themePhotoService.getAllThemePhotos();
@@ -160,6 +159,7 @@ public class ThemeService {
             existingTheme.setYearTo(themeUpdateDTO.getYearTo());
         }
         if (themeUpdateDTO.getThemeName() != null) {
+            ValidationUtils.validateText(themeUpdateDTO.getThemeName());
             existingTheme.setThemeName(themeUpdateDTO.getThemeName());
         }
         if (themeUpdateDTO.getDescriptionText() != null) {
@@ -197,18 +197,20 @@ public class ThemeService {
         Theme themeToDelete = themeRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Theme", id));
 
+        themeToDelete.getThemePhotos().forEach(themePhoto -> {
+            String[] parts = themePhoto.getPhotoUrl().split("/");
+            String fileName = parts[parts.length -1 ];
+            System.out.println("filename : ");
+            System.out.println(fileName);
+            photoService.deletePhoto("themes", fileName);
+            themePhotoRepository.delete(themePhoto);
+        });
+
         Set<PhotoType> photoTypesToRemove = themeToDelete.getPhotoTypes().stream()
                 .filter(photoType -> photoType.getThemes().size() == 1)
                 .collect(Collectors.toSet());
 
         if (!photoTypesToRemove.isEmpty()) {
-            for (PhotoType photoType : photoTypesToRemove) {
-                for (ThemePhoto themePhoto : photoType.getThemePhotos()) {
-                    String[] parts = themePhoto.getPhotoUrl().split("/");
-                    String fileName = parts[parts.length -1 ];
-                    photoService.deletePhoto("themes", fileName);
-                }
-            }
             themeToDelete.getPhotoTypes().removeAll(photoTypesToRemove);
             photoTypesToRemove.forEach(photoTypeRepository::delete);
         }
@@ -216,8 +218,6 @@ public class ThemeService {
         String[] strings = themeToDelete.getPresentationPhotoUrl().split("/");
         String presentationFileName = strings[strings.length - 1];
         photoService.deletePhoto("themes", presentationFileName);
-
-        themeToDelete.getThemePhotos().forEach(themePhotoRepository::delete);
 
         themeRepository.delete(themeToDelete);
     }

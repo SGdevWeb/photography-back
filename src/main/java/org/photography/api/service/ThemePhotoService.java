@@ -64,13 +64,13 @@ public class ThemePhotoService {
 
         String oldUrl = themePhoto.getPhotoUrl();
 
+        String newPhotoUrl = photoService.uploadPhoto(photoDTO);
+
         // Suppression de l'ancienne photo
         String[] parts = oldUrl.split("/");
         String fileName = parts[parts.length - 1];
         String contentType = photoDTO.getContentType();
         photoService.deletePhoto(contentType, fileName);
-
-        String newPhotoUrl = photoService.uploadPhoto(photoDTO);
 
         // Mise à jour de l'URL
         themePhoto.setPhotoUrl(newPhotoUrl);

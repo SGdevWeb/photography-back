@@ -50,6 +50,7 @@ public class TestimonialService {
         Testimonial createdTestimonial = testimonialRepository.save(testimonialToCreate);
 
         sendTestimonialConfirmationEmail(testimonialToCreate);
+        sendNotificationToAdmin(testimonialDTO);
 
         return modelMapper.map(createdTestimonial, TestimonialDTO.class);
     }
@@ -201,6 +202,28 @@ public class TestimonialService {
                 contactEmail
         );
 
+    }
+
+    public void sendNotificationToAdmin(TestimonialDTO testimonialDTO) {
+        String emailContent = String.format("""
+                Bonjour,
+                                
+                Un nouveau témoignage a été soumis sur la plateforme.
+                
+                Détails du témoignage :
+                Prénom : %s
+                Nom : %s
+                E-mail : %s
+                
+                Merci de vérifier et de traiter ce témoignage sur votre dashboard.
+                """, testimonialDTO.getFirstName(), testimonialDTO.getLastName(), testimonialDTO.getEmail());
+
+        emailService.sendEmail(
+                contactEmail,
+                "Nouveau témoignage soumis sur la plateforme",
+                emailContent,
+                contactEmail
+        );
     }
 
 }

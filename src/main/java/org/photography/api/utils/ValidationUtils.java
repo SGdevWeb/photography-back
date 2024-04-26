@@ -55,11 +55,11 @@ public class ValidationUtils {
     // Theme years
     public static void validateYearRange(int yearFrom, int yearTo) {
         if (yearFrom > yearTo) {
-            throw new IllegalArgumentException("Invalid year range. 'yearFrom' should be less than 'yearTo'.");
+            throw new IllegalArgumentException("La première année saisie doit être inférieure à l'année suivante.");
         }
 
         if (yearTo - yearFrom != 1) {
-            throw new IllegalArgumentException("Year range should be exactly one year");
+            throw new IllegalArgumentException("L'intervalle d'années doit être d'une année exactement");
         }
     }
 
