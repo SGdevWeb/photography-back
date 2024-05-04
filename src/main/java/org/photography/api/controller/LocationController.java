@@ -20,7 +20,7 @@ public class LocationController {
 
     private final LocationService locationService;
 
-    private static final Logger logger = LoggerFactory.getLogger(LocationService.class);
+    private static final Logger logger = LoggerFactory.getLogger(LocationController.class);
 
     @Autowired
     public LocationController(LocationService locationService) {
