@@ -1,6 +1,7 @@
 package org.photography.api.controller;
 
-import org.photography.api.dto.ResetPasswordDTO;
+import org.photography.api.dto.PasswordDTO.ResetPasswordDTO;
+import org.photography.api.dto.PasswordDTO.UpdatePasswordDTO;
 import org.photography.api.exception.EntityNotFoundException;
 import org.photography.api.model.User;
 import org.photography.api.repository.UserRepository;
@@ -85,5 +86,17 @@ public class PasswordController {
             return new ResponseEntity<>("Erreur lors de la réinitilisation du mot de passe", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @PostMapping("/change")
+    public ResponseEntity<?> changePassword(@RequestBody UpdatePasswordDTO updatePasswordDTO) {
+       try {
+           passwordService.changePassword(updatePasswordDTO);
+           return new ResponseEntity<>("Mot de passe mis à jour avec succès", HttpStatus.OK);
+       } catch (IllegalArgumentException e) {
+           return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+       }
+    }
+
+
 
 }

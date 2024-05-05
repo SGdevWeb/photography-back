@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 public class LoginController {
 
     private final AuthenticationManager authenticationManager;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     private JWTService jwtService;
 
@@ -26,10 +27,11 @@ public class LoginController {
 
     public LoginController(JWTService jwtService,
                            AuthenticationManager authenticationManager,
-                           UserRepository userRepository) {
+                           UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @PostMapping("/login")
@@ -37,15 +39,9 @@ public class LoginController {
         try {
             User user = userRepository.findByUsername(loginDTO.getUsername());
 
-            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-            String hashedPassword = encoder.encode(loginDTO.getPassword());
-
-            System.out.println(hashedPassword);
-
             if (user == null) {
                 return new ResponseEntity<>("Nom d'utilisateur ou mot de passe incorrect.", HttpStatus.UNAUTHORIZED);
             }
-
 
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(

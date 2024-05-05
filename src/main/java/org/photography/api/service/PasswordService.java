@@ -1,9 +1,14 @@
 package org.photography.api.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.photography.api.dto.PasswordDTO.UpdatePasswordDTO;
 import org.photography.api.model.User;
 import org.photography.api.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -89,6 +94,24 @@ public class PasswordService {
         user.setResetToken(null);
 
         userRepository.save(user);
+    }
+
+    public void changePassword(UpdatePasswordDTO updatePasswordDTO) {
+        if (!updatePasswordDTO.getNewPassword().equals(updatePasswordDTO.getConfirmNewPassword())) {
+            throw new IllegalArgumentException("Les mots de passe ne correspondent pas !");
+        }
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        User user = userRepository.findByUsername(username);
+
+        if (!passwordEncoder.matches(updatePasswordDTO.getOldPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("L'ancien mot de passe est incorrect");
+        }
+
+        resetPassword(user.getEmail(), updatePasswordDTO.getNewPassword());
+
     }
 
 }

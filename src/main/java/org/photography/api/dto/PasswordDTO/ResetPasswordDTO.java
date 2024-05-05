@@ -1,4 +1,4 @@
-package org.photography.api.dto;
+package org.photography.api.dto.PasswordDTO;
 
 import lombok.Getter;
 import lombok.Setter;
