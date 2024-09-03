@@ -62,10 +62,12 @@ public class PhotoLibraryController {
     @GetMapping
     public ResponseEntity<?> getAllPhotoLibraries(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) Set<String> tags,
+            @RequestParam(required = false) Set<String> locations
     ) {
         try {
-            List<PhotoLibraryDTO> photoLibraries = photoLibraryService.getAllPhotoLibraries(page, size).getContent();
+            List<PhotoLibraryDTO> photoLibraries = photoLibraryService.getAllPhotoLibraries(page, size, tags, locations).getContent();
             return new ResponseEntity<>(photoLibraries, HttpStatus.OK);
         } catch (Exception e) {
             logger.info("Erreur lors de la récupération des photos : ", e);

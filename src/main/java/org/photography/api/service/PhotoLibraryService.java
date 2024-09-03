@@ -150,9 +150,17 @@ public class PhotoLibraryService {
 //    }
 
     @Transactional
-    public Page<PhotoLibraryDTO> getAllPhotoLibraries(int page, int size) {
+    public Page<PhotoLibraryDTO> getAllPhotoLibraries(int page, int size, Set<String> tags, Set<String> locations) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("photoName").ascending());
-        Page<PhotoLibrary> photoLibrariesPage = photoLibraryRepository.findAll(pageable);
+
+        Page<PhotoLibrary> photoLibrariesPage;
+
+        if ((tags != null && !tags.isEmpty()) || (locations != null && !locations.isEmpty())) {
+            photoLibrariesPage = photoLibraryRepository.findFiltered(tags, locations, pageable);
+        } else {
+            photoLibrariesPage = photoLibraryRepository.findAll(pageable);
+        }
+
         return photoLibrariesPage.map(photoLibrary -> modelMapper.map(photoLibrary, PhotoLibraryDTO.class));
     }
 
