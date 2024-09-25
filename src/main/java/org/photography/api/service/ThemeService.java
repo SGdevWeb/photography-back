@@ -143,7 +143,20 @@ public class ThemeService {
     public Set<ThemeDetailDTO> getAllThemes() {
         Set<Theme> themes = new HashSet<>(themeRepository.findAll());
         return themes.stream()
-                .map(theme -> modelMapper.map(theme, ThemeDetailDTO.class))
+                .map(theme -> {
+                    ThemeDetailDTO themeDetailDTO = modelMapper.map(theme, ThemeDetailDTO.class);
+
+                    // Utiliser TreeSet pour trier automatiquement par photoPosition
+                    Set<ThemePhotoDTO> sortedPhotos = new TreeSet<>(Comparator.comparingInt(ThemePhotoDTO::getPhotoPosition));
+                    sortedPhotos.addAll(theme.getThemePhotos().stream()
+                            .map(photo -> modelMapper.map(photo, ThemePhotoDTO.class))
+                            .collect(Collectors.toSet()));
+
+                    // Mettre à jour les photos triées dans le DTO
+                    themeDetailDTO.setThemePhotos(sortedPhotos);
+
+                    return themeDetailDTO;
+                })
                 .collect(Collectors.toSet());
     }
 
