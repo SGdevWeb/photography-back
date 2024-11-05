@@ -32,12 +32,12 @@ public class PhotoLibrary implements Serializable {
     @Column
     private String photoName;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     @JoinColumn(name = "locationId")
     private Location location;
 
     @JsonManagedReference
-    @ManyToMany(cascade = CascadeType.PERSIST)
+    @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     @JoinTable(
             name = "photoLibrary_tag",
             joinColumns = @JoinColumn(name = "photoId"),

@@ -63,8 +63,8 @@ public class ThemeService {
             throw new AlreadyExists(themeCreationDTO.getThemeName());
         }
 
-        ValidationUtils.validateYearRange(themeCreationDTO.getYearFrom(), themeCreationDTO.getYearTo());
         ValidationUtils.validateName(themeCreationDTO.getThemeName());
+        ValidationUtils.validateYearRange(themeCreationDTO.getYearFrom(), themeCreationDTO.getYearTo());
 
         Theme themeToCreate = new Theme();
 

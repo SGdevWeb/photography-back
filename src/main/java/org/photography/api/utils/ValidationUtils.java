@@ -11,19 +11,19 @@ public class ValidationUtils {
 
     private static void validateNullOrEmptyName(String name) {
         if (name == null || name.isEmpty()) {
-            throw new IllegalArgumentException("Name cannot be null or empty");
+            throw new IllegalArgumentException("Le nom ne peut pas être vide");
         }
     }
 
     private static void validateCharacterTypesName(String name) {
         if (!name.matches("^[\\p{L}0-9 ]+$")) {
-            throw new IllegalArgumentException("Name can only contain letters and numbers");
+            throw new IllegalArgumentException("Le nom doit contenir uniquement des lettres et des chiffres");
         }
     }
 
     private static void validateLengthName(String name) {
         if (name.length() > 255) {
-            throw new IllegalArgumentException("Name length cannot exceed 255 characters");
+            throw new IllegalArgumentException("Le nom ne peut pas excéder 255 caractères");
         }
     }
 
@@ -42,13 +42,13 @@ public class ValidationUtils {
 
     private static void validateNullOrEmptyText(String text) {
         if (text == null || text.isEmpty()) {
-            throw new IllegalArgumentException("Text cannot be null or empty");
+            throw new IllegalArgumentException("Le texte ne peut pas être vide");
         }
     }
 
     private static void validateCharacterTypesText(String text) {
         if (!text.matches("[\\p{L}0-9.,<>:/!' ]*")) {
-            throw new IllegalArgumentException("Text can only contain letters, numbers, periods, and commas");
+            throw new IllegalArgumentException("Le texte peut contenir uniquement des lettres, des nombres, points et virgules");
         }
     }
 

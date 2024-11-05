@@ -10,7 +10,6 @@ import org.photography.api.exception.AlreadyExists;
 import org.photography.api.exception.EntityNotFoundException;
 import org.photography.api.model.Location;
 import org.photography.api.model.PhotoLibrary;
-import org.photography.api.model.PhotoLibraryTag;
 import org.photography.api.model.Tag;
 import org.photography.api.repository.LocationRepository;
 import org.photography.api.repository.PhotoLibraryRepository;
@@ -26,12 +25,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.Objects.*;
 
 @Service
 public class PhotoLibraryService {
